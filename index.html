@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SketchForge — Draw it, say it, ship it</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#0f1226;color:#fff}
+header{padding:24px;text-align:center}
+header h1{margin:0;font-size:36px}
+header p{opacity:.85}
+main{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;max-width:1100px;margin:0 auto}
+.card{background:#1b1f45;border-radius:12px;padding:16px}
+canvas{background:#fff;border-radius:8px;width:100%;height:260px;touch-action:none;cursor:crosshair}
+textarea,input{width:100%;box-sizing:border-box;border-radius:8px;border:1px solid #444;padding:10px}
+button{background:#7c5cff;color:#fff;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:700}
+button.secondary{background:#2a2f66}
+pre{white-space:pre-wrap;background:#0b0e22;padding:12px;border-radius:8px;overflow:auto}
+.task{display:flex;gap:8px;align-items:center;background:#fff;color:#111;border-radius:8px;padding:8px;margin:6px 0}
+@media(max-width:700px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>SketchForge</h1>
+<p>Draw it, say it, ship it — sketch + voice note → spec → working app</p>
+</header>
+<main>
+<section class="card">
+<h2>1. Sketch</h2>
+<p>Draw your app layout below, or describe it in the voice-note field.</p>
+<canvas id="canvas" width="520" height="260"></canvas><br>
+<button class="secondary" onclick="clearCanvas()">Clear sketch</button>
+<h2>2. Voice note</h2>
+<textarea id="voice" rows="4" placeholder="Example: a task app, with a search bar, and a reminder for tomorrow"></textarea>
+<h2>3. Generate spec</h2>
+<button onclick="generateSpec()">Generate spec → preview</button>
+<pre id="spec">Your editable spec will appear here.</pre>
+</section>
+<section class="card">
+<h2>Live preview: My Tasks</h2>
+<p>This preview is generated from the spec. Add a task to see it run.</p>
+<input id="newTask" placeholder="New task, e.g. Design homepage">
+<button onclick="addTask()">Add task</button>
+<div id="tasks"></div>
+<p><small>Starter prototype for Kiroween 2026. Full Next.js implementation is tracked in .kiro/specs/sketchforge/tasks.md.</small></p>
+</section>
+</main>
+<script>
+const c=document.getElementById('canvas'),ctx=c.getContext('2d');let drawing=false,last=null;
+c.addEventListener('pointerdown',e=>{drawing=true;last=pos(e)});c.addEventListener('pointermove',e=>{if(!drawing)return;const p=pos(e);ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p});addEventListener('pointerup',()=>drawing=false);
+function pos(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height}}
+function clearCanvas(){ctx.clearRect(0,0,c.width,c.height)}
+function generateSpec(){const v=document.getElementById('voice').value||'a task app, with a search bar, and a reminder for tomorrow';document.getElementById('spec').textContent='Screens:\n- Task list with search\n- Add task form\n\nFeatures:\n- Search tasks\n- Add / complete tasks\n- Reminder for tomorrow\n\nVoice note:\n'+v+'\n\nTasks:\n- [ ] Build task list UI\n- [ ] Add search and add-task flow\n- [ ] Add reminder field\n- [ ] Live preview + GitHub export';}
+const tasks=['Design homepage','Buy groceries'];function render(){document.getElementById('tasks').innerHTML=tasks.map((t,i)=>`<div class="task"><input type="checkbox" onchange="this.parentElement.style.opacity=.5"> ${t}</div>`).join('')}render();
+function addTask(){const i=document.getElementById('newTask');if(i.value){tasks.push(i.value);i.value='';render()}}
+</script>
+</body>
+</html>

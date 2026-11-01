@@ -1,0 +1,1 @@
+{"actions":["format","check"],"description":"Example Kiro hook: run formatting and basic checks when a file is saved.","name":"format-on-save","trigger":"onSave"}
